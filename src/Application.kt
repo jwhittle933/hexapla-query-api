@@ -13,6 +13,12 @@ import java.time.*
 import io.ktor.auth.*
 import io.ktor.gson.*
 import io.ktor.client.*
+import org.hexapla.queryapi.QueryAPI
+import org.hexapla.queryapi.data.DataStore
+import org.hexapla.queryapi.env.Environment
+import org.hexapla.queryapi.routing.Router
+import org.hexapla.queryapi.routing.attestationRoutes
+import org.hexapla.queryapi.routing.lemmaRoutes
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -51,10 +57,18 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
-    val client = HttpClient() {
-    }
+    //val client = HttpClient() {
+    //}
+
+    val dataStore = DataStore()
+    val router = Router()
+    val env = Environment()
+    val queryAPI = QueryAPI(env, dataStore, router)
 
     routing {
+        lemmaRoutes()
+        attestationRoutes()
+
         get("/") {
             call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
         }
@@ -65,7 +79,7 @@ fun Application.module(testing: Boolean = false) {
             call.respondText("Counter is ${session.count}. Refresh to increment.")
         }
 
-        webSocket("/myws/echo") {
+        webSocket("/sock/echo") {
             send(Frame.Text("Hi from server"))
             while (true) {
                 val frame = incoming.receive()
