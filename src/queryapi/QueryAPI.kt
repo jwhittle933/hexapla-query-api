@@ -9,4 +9,6 @@ import org.hexapla.queryapi.env.Environment
 import org.hexapla.queryapi.routing.Router
 
 class QueryAPI(env: Environment, dataStore: DataStore, router: Router) {
+    val environment = env
+    val version = env.find("VERSION") ?: "1.0.1"
 }

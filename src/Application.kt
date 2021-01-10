@@ -15,10 +15,14 @@ import io.ktor.gson.*
 import io.ktor.client.*
 import org.hexapla.queryapi.QueryAPI
 import org.hexapla.queryapi.data.DataStore
+import org.hexapla.queryapi.data.lemma.Lemma
+import org.hexapla.queryapi.data.lemma.Lemmas
 import org.hexapla.queryapi.env.Environment
 import org.hexapla.queryapi.routing.Router
 import org.hexapla.queryapi.routing.attestationRoutes
 import org.hexapla.queryapi.routing.lemmaRoutes
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -54,6 +58,7 @@ fun Application.module(testing: Boolean = false) {
 
     install(ContentNegotiation) {
         gson {
+            setPrettyPrinting()
         }
     }
 
@@ -66,7 +71,7 @@ fun Application.module(testing: Boolean = false) {
     val queryAPI = QueryAPI(env, dataStore, router)
 
     routing {
-        lemmaRoutes()
+        lemmaRoutes(dataStore)
         attestationRoutes()
 
         get("/") {
